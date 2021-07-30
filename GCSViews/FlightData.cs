@@ -833,8 +833,9 @@ namespace MissionPlanner.GCSViews
                     mBorders.InnerMarker = m;
                     try
                     {
-                        mBorders.wprad =
-                            (int) (Settings.Instance.GetFloat("TXT_WPRad") / CurrentState.multiplierdist);
+                        //mBorders.wprad =
+                        //    (int) (Settings.Instance.GetFloat("TXT_WPRad") / CurrentState.multiplierdist);
+                        mBorders.wprad = 500;
                     }
                     catch
                     {
@@ -3212,6 +3213,15 @@ namespace MissionPlanner.GCSViews
                                 ToolTipText = "Moving Base",
                                 ToolTipMode = MarkerTooltipMode.OnMouseOver
                             });
+                            
+                            //addpolygonmarker("Muhther Fckr", MainV2.comPort.MAV.GuidedMode.y / 1e7,
+                            //        MainV2.comPort.MAV.GuidedMode.x / 1e7, (int)MainV2.comPort.MAV.GuidedMode.z,
+                            //        Color.Blue,
+                            //        routes);
+                            addpolygonmarker("Muhther Fckr", MainV2.comPort.MAV.cs.MovingBase.Lng, MainV2.comPort.MAV.cs.MovingBase.Lat,
+                                    (int)100,
+                                    Color.Blue,
+                                    routes);
                         }
 
                         // add gimbal point center

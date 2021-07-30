@@ -1623,7 +1623,7 @@ namespace GMap.NET.WindowsForms
 #if PocketPC
          g.DrawString("debug build", CopyrightFont, CopyrightBrush, 2, CopyrightFont.Size);
 #else
-            g.DrawString("debug build", CopyrightFont, Brushes.Blue, 2, CopyrightFont.Height);
+            g.DrawString("debug build - your moma", CopyrightFont, Brushes.Blue, 2, CopyrightFont.Height);
 #endif
 
 #endif
