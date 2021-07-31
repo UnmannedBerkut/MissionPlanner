@@ -43,7 +43,7 @@ namespace MissionPlanner.Maps
         public override void OnRender(IGraphics g)
         {
 #if !PocketPC
-            g.DrawImageUnscaled(localcache2, LocalPosition.X, LocalPosition.Y);
+            g.DrawImageUnscaled(localcache2, LocalPosition.X-12, LocalPosition.Y-45);
 
 #else
     //    DrawImageUnscaled(g, Resources.shadow50, LocalPosition.X, LocalPosition.Y);
