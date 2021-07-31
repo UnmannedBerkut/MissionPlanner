@@ -823,34 +823,53 @@ namespace MissionPlanner.GCSViews
             try
             {
                 PointLatLng point = new PointLatLng(lat, lng);
-                GMarkerGoogle m = new GMarkerGoogle(point, GMarkerGoogleType.green);
-                m.ToolTipMode = MarkerTooltipMode.Always;
-                m.ToolTipText = tag + " - " + alt;
-                m.Tag = tag;
-                m.ToolTip.Offset.Y = 10;
+                //GMarkerGoogle m = new GMarkerGoogle(point, GMarkerGoogleType.green);
+                //m.ToolTipMode = MarkerTooltipMode.Never;
 
-                GMapMarkerCircle mBorders = new GMapMarkerCircle(point);
+                GMapMarkerCircle m_500mCircle = new GMapMarkerCircle(point);
                 {
-                    mBorders.InnerMarker = m;
+                    //mBorders.InnerMarker = m;
                     try
                     {
-                        mBorders.wprad = 500;   //meters
-                            //(int)(Settings.Instance.GetFloat("TXT_WPRad") / CurrentState.multiplierdist);
+                        m_500mCircle.wprad = 500;   //meters
                     }
                     catch
                     {
                     }
-
-                    if (color.HasValue)
-                    {
-                        mBorders.Color = color.Value;
-                    }
+                    m_500mCircle.Color = Color.Red;
                 }
 
+                GMapMarkerCircle m_1kmCircle = new GMapMarkerCircle(point);
+                {
+                    //mBorders.InnerMarker = m;
+                    try
+                    {
+                        m_1kmCircle.wprad = 1000;   //meters
+                    }
+                    catch
+                    {
+                    }
+                    m_1kmCircle.Color = Color.Yellow;
+                }
+
+                GMapMarkerCircle m_2kmCircle = new GMapMarkerCircle(point);
+                {
+                    //mBorders.InnerMarker = m;
+                    try
+                    {
+                        m_2kmCircle.wprad = 2000;   //meters
+                    }
+                    catch
+                    {
+                    }
+                    m_2kmCircle.Color = Color.Green;
+                }
                 BeginInvoke((Action)delegate
                 {
-                    overlay.Markers.Add(m);
-                    overlay.Markers.Add(mBorders);
+                    //overlay.Markers.Add(m);
+                    overlay.Markers.Add(m_500mCircle);
+                    overlay.Markers.Add(m_1kmCircle);
+                    overlay.Markers.Add(m_2kmCircle);
                 });
             }
             catch (Exception)
