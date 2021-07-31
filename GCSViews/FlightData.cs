@@ -818,6 +818,47 @@ namespace MissionPlanner.GCSViews
             POI.POIAdd(MouseDownStart);
         }
 
+        private void addrangeringnmarker(string tag, double lng, double lat, int alt, Color? color, GMapOverlay overlay)
+        {
+            try
+            {
+                PointLatLng point = new PointLatLng(lat, lng);
+                GMarkerGoogle m = new GMarkerGoogle(point, GMarkerGoogleType.green);
+                m.ToolTipMode = MarkerTooltipMode.Always;
+                m.ToolTipText = tag + " - " + alt;
+                m.Tag = tag;
+                m.ToolTip.Offset.Y = 10;
+
+                GMapMarkerCircle mBorders = new GMapMarkerCircle(point);
+                {
+                    mBorders.InnerMarker = m;
+                    try
+                    {
+                        mBorders.wprad = 500;   //meters
+                            //(int)(Settings.Instance.GetFloat("TXT_WPRad") / CurrentState.multiplierdist);
+                    }
+                    catch
+                    {
+                    }
+
+                    if (color.HasValue)
+                    {
+                        mBorders.Color = color.Value;
+                    }
+                }
+
+                BeginInvoke((Action)delegate
+                {
+                    overlay.Markers.Add(m);
+                    overlay.Markers.Add(mBorders);
+                });
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+
         private void addpolygonmarker(string tag, double lng, double lat, int alt, Color? color, GMapOverlay overlay)
         {
             try
@@ -827,6 +868,8 @@ namespace MissionPlanner.GCSViews
                 m.ToolTipMode = MarkerTooltipMode.Always;
                 m.ToolTipText = tag + " - " + alt;
                 m.Tag = tag;
+
+                GMapMarkerCircle mCircle = new GMapMarkerCircle(point);
 
                 GMapMarkerRect mBorders = new GMapMarkerRect(point);
                 {
@@ -3212,6 +3255,12 @@ namespace MissionPlanner.GCSViews
                                 ToolTipText = "Moving Base",
                                 ToolTipMode = MarkerTooltipMode.OnMouseOver
                             });
+
+                            addrangeringnmarker("Range Ring", MainV2.comPort.MAV.cs.MovingBase.Lng,
+                                    MainV2.comPort.MAV.cs.MovingBase.Lat,
+                                    (int)10,
+                                    Color.Blue,
+                                    routes);
                         }
 
                         // add gimbal point center
