@@ -198,6 +198,7 @@ namespace MissionPlanner.Controls
         private DateTime _datetime;
         private string _mode = "Manual";
         private int _wpno = 0;
+        private float _timeInAir = 0;
 
         float _AOA = 0;
         float _SSA = 0;
@@ -618,6 +619,20 @@ namespace MissionPlanner.Controls
                 if (_datetime != value)
                 {
                     _datetime = value;
+                    this.Invalidate();
+                }
+            }
+        }
+
+        [System.ComponentModel.Browsable(true), System.ComponentModel.Category("Values")]
+        public float timeInAir
+        {
+            get { return _timeInAir; }
+            set
+            {
+                if (_timeInAir != value)
+                {
+                    _timeInAir = value;
                     this.Invalidate();
                 }
             }
@@ -2473,8 +2488,11 @@ namespace MissionPlanner.Controls
                             scrollbg.Left + 50, scrollbg.Top - (int) (fontsize * 2.2) - 2 - 20);
                     }
 
-                    drawstring(_datetime.ToString("HH:mm:ss"), font, fontsize, _whiteBrush,
-                        scrollbg.Left - 30, scrollbg.Top - fontsize - 2 - 20);
+                    int timeInAirHrs = (int)(_timeInAir / (60 * 60));
+                    int timeInAirMins = (int)(_timeInAir / (60)) % 60;
+                    int timeInAirSecs = (int)(_timeInAir % 60);
+                    drawstring(timeInAirHrs.ToString("00") + ":" + timeInAirMins.ToString("00") + ":" + timeInAirSecs.ToString("00"),
+                        font, fontsize, _whiteBrush, scrollbg.Left - 30, scrollbg.Top - fontsize - 2 - 20);
                 }
 
                 // AOA

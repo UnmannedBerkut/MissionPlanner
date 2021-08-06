@@ -90,6 +90,7 @@
             this.hud1.DataBindings.Add(new System.Windows.Forms.Binding("verticalspeed", this.bindingSource1, "verticalspeed", true));
             this.hud1.DataBindings.Add(new System.Windows.Forms.Binding("wpno", this.bindingSource1, "wpno", true));
             this.hud1.DataBindings.Add(new System.Windows.Forms.Binding("xtrack_error", this.bindingSource1, "xtrack_error", true));
+            this.hud1.DataBindings.Add(new System.Windows.Forms.Binding("timeInAir", this.bindingSource1, "timeInAir", true));
             this.hud1.datetime = new System.DateTime(((long)(0)));
             this.hud1.disttowp = 0F;
             this.hud1.gpsfix = 0F;
@@ -118,6 +119,7 @@
             this.hud1.VSync = false;
             this.hud1.wpno = 0;
             this.hud1.xtrack_error = 0F;
+            this.hud1.timeInAir = 0F;
             // 
             // bindingSource1
             // 
