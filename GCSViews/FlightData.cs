@@ -822,6 +822,66 @@ namespace MissionPlanner.GCSViews
             POI.POIAdd(MouseDownStart);
         }
 
+        private void addrangeringnmarker(string tag, double lng, double lat, int alt, Color? color, GMapOverlay overlay)
+        {
+            try
+            {
+                PointLatLng point = new PointLatLng(lat, lng);
+                //GMarkerGoogle m = new GMarkerGoogle(point, GMarkerGoogleType.green);
+                //m.ToolTipMode = MarkerTooltipMode.Never;
+
+                GMapMarkerCircle m_500mCircle = new GMapMarkerCircle(point);
+                {
+                    //mBorders.InnerMarker = m;
+                    try
+                    {
+                        m_500mCircle.wprad = 500;   //meters
+                    }
+                    catch
+                    {
+                    }
+                    m_500mCircle.Color = Color.Red;
+                }
+
+                GMapMarkerCircle m_1kmCircle = new GMapMarkerCircle(point);
+                {
+                    //mBorders.InnerMarker = m;
+                    try
+                    {
+                        m_1kmCircle.wprad = 1000;   //meters
+                    }
+                    catch
+                    {
+                    }
+                    m_1kmCircle.Color = Color.Yellow;
+                }
+
+                GMapMarkerCircle m_2kmCircle = new GMapMarkerCircle(point);
+                {
+                    //mBorders.InnerMarker = m;
+                    try
+                    {
+                        m_2kmCircle.wprad = 2000;   //meters
+                    }
+                    catch
+                    {
+                    }
+                    m_2kmCircle.Color = Color.Green;
+                }
+                BeginInvoke((Action)delegate
+                {
+                    //overlay.Markers.Add(m);
+                    overlay.Markers.Add(m_500mCircle);
+                    overlay.Markers.Add(m_1kmCircle);
+                    overlay.Markers.Add(m_2kmCircle);
+                });
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+
         private void addpolygonmarker(string tag, double lng, double lat, int alt, Color? color, GMapOverlay overlay)
         {
             try
@@ -831,6 +891,8 @@ namespace MissionPlanner.GCSViews
                 m.ToolTipMode = MarkerTooltipMode.Always;
                 m.ToolTipText = tag + " - " + alt;
                 m.Tag = tag;
+
+                GMapMarkerCircle mCircle = new GMapMarkerCircle(point);
 
                 GMapMarkerRect mBorders = new GMapMarkerRect(point);
                 {
@@ -3295,6 +3357,12 @@ namespace MissionPlanner.GCSViews
                                 ToolTipText = "Moving Base",
                                 ToolTipMode = MarkerTooltipMode.OnMouseOver
                             });
+
+                            addrangeringnmarker("Range Ring", MainV2.comPort.MAV.cs.MovingBase.Lng,
+                                    MainV2.comPort.MAV.cs.MovingBase.Lat,
+                                    (int)10,
+                                    Color.Blue,
+                                    routes);
                         }
 
                         // add gimbal point center
