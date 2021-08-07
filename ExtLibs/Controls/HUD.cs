@@ -205,6 +205,7 @@ namespace MissionPlanner.Controls
         private string _mode = "Manual";
         private DateTime _modechanged = DateTime.MinValue;
         private int _wpno = 0;
+        private float _timeInAir = 0;
 
         float _AOA = 0;
         float _SSA = 0;
@@ -640,6 +641,20 @@ namespace MissionPlanner.Controls
                 if (_datetime != value)
                 {
                     _datetime = value;
+                    this.Invalidate();
+                }
+            }
+        }
+
+        [System.ComponentModel.Browsable(true), System.ComponentModel.Category("Values")]
+        public float timeInAir
+        {
+            get { return _timeInAir; }
+            set
+            {
+                if (_timeInAir != value)
+                {
+                    _timeInAir = value;
                     this.Invalidate();
                 }
             }
@@ -2136,8 +2151,7 @@ namespace MissionPlanner.Controls
 
                 // xtrack error
                 // center
-
-                if (displayxtrack)
+                if (false)  //This is a seldom used display, disable it to make room for AS and GS displays. Enable it with (displayxtrack)
                 {
                     float xtspace = this.Width / 10.0f / 3.0f;
                     int pad = 10;
@@ -2298,23 +2312,23 @@ namespace MissionPlanner.Controls
                     if (_lowairspeed)
                     {
                         drawstring(HUDT.AS + _airspeed.ToString("0.0") + speedunit, font, fontsize,
-                            (SolidBrush) Brushes.Red, 1, scrollbg.Bottom + 5);
+                            (SolidBrush) Brushes.Red, 1, scrollbg.Top - (int)(fontsize * 2.2) - 2 - 20);
                     }
                     else
                     {
                         drawstring(HUDT.AS + _airspeed.ToString("0.0") + speedunit, font, fontsize, _whiteBrush, 1,
-                            scrollbg.Bottom + 5);
+                            scrollbg.Top - (int)(fontsize * 2.2) - 2 - 20);
                     }
 
                     if (_lowgroundspeed)
                     {
                         drawstring(HUDT.GS + _groundspeed.ToString("0.0") + speedunit, font, fontsize,
-                            (SolidBrush) Brushes.Red, 1, scrollbg.Bottom + fontsize + 2 + 10);
+                            (SolidBrush) Brushes.Red, 1, scrollbg.Top - fontsize - 2 - 20);
                     }
                     else
                     {
                         drawstring(HUDT.GS + _groundspeed.ToString("0.0") + speedunit, font, fontsize, _whiteBrush,
-                            1, scrollbg.Bottom + fontsize + 2 + 10);
+                            1, scrollbg.Top - fontsize - 2 - 20);
                     }
                 }
 
@@ -2537,12 +2551,15 @@ namespace MissionPlanner.Controls
                             scrollbg.Left + 50, scrollbg.Top - (int) (fontsize * 2.2) - 2 - 20);
                     }
 
-                    drawstring(_datetime.ToString("HH:mm:ss"), font, fontsize, _whiteBrush,
-                        scrollbg.Left - 30, scrollbg.Top - fontsize - 2 - 20);
+                    int timeInAirHrs = (int)(_timeInAir / (60 * 60));
+                    int timeInAirMins = (int)(_timeInAir / (60)) % 60;
+                    int timeInAirSecs = (int)(_timeInAir % 60);
+                    drawstring(timeInAirHrs.ToString("00") + ":" + timeInAirMins.ToString("00") + ":" + timeInAirSecs.ToString("00"),
+                        font, fontsize, _whiteBrush, scrollbg.Left - 30, scrollbg.Top - fontsize - 2 - 20);
                 }
 
                 // AOA
-                if (displayAOASSA)
+                if (false)  //This is stupid for a UAV - Never display it  Use (displayAOASSA) if you really think you need it
                 {
                     scrollbg = new Rectangle((int) (this.Width - (double) this.Width / 6), halfheight + halfheight / 10,
                         this.Width / 25, this.Height / 5);
@@ -2594,7 +2611,7 @@ namespace MissionPlanner.Controls
                     if (criticalvoltagealert)
                     {
                         drawstring(text, font, fontsize + 2, (SolidBrush) Brushes.Red, fontsize,
-                            this.Height - ((fontsize + 2) * 3) - fontoffset);
+                            this.Height - fontsize - fontoffset - 5);
 
                         if (displayCellVoltage & (_batterycellcount != 0))
                             drawstring(HUDT.Cell + " " + (_batterylevel / _batterycellcount).ToString("0.00v"), font, fontsize + 2, _whiteBrush, fontsize, this.Height - (fontsize * 2) - fontoffset);
@@ -2610,7 +2627,7 @@ namespace MissionPlanner.Controls
                     else
                     {
                         drawstring(text, font, fontsize + 2, _whiteBrush, fontsize,
-                            this.Height - ((fontsize + 2) * 3) - fontoffset);
+                            this.Height - fontsize - fontoffset - 5);
 
                         if (displayCellVoltage & (_batterycellcount!=0)) 
                             drawstring(HUDT.Cell + " " + (_batterylevel / _batterycellcount).ToString("0.00v"),font, fontsize + 2, _whiteBrush, fontsize, this.Height - (fontsize * 2) - fontoffset);
@@ -2667,7 +2684,7 @@ namespace MissionPlanner.Controls
                             continue;
 
                         drawstring(gps, font, fontsize + 2, col, this.Width - 13 * fontsize,
-                            this.Height - ((fontsize + 2) * 3) - fontoffset + ((fontsize + 2) * a));
+                            this.Height - fontsize - fontoffset - 5 - ((fontsize + 2) * a));
                         a++;
                     }
                 }
@@ -2678,7 +2695,7 @@ namespace MissionPlanner.Controls
 
                 // custom user items
                 graphicsObject.ResetTransform();
-                int height = this.Height - ((fontsize + 2) * 3) - fontoffset - fontsize - 8;
+                int height = this.Height - (fontsize + 2) - fontoffset - fontsize - 8;
                 foreach (string key in CustomItems.Keys)
                 {
                     try
@@ -2689,12 +2706,12 @@ namespace MissionPlanner.Controls
                         if (item.Item.Name.Contains("lat") || item.Item.Name.Contains("lng"))
                         {
                             drawstring(item.Header + item.GetValue.ToString("0.#######"), font,
-                                fontsize + 2, _whiteBrush, this.Width / 8, height);
+                                fontsize + 2, _whiteBrush, fontsize, height);
                         }
                         else if (item.Item.Name == "battery_usedmah")
                         {
                             drawstring(item.Header + item.GetValue.ToString("0"), font, fontsize + 2,
-                                _whiteBrush, this.Width / 8, height);
+                                _whiteBrush, fontsize, height);
                         }
                         else if (item.Item.Name == "timeInAir")
                         {
@@ -2706,12 +2723,12 @@ namespace MissionPlanner.Controls
                             int secs = (int) (stime % 60);
                             drawstring(
                                 item.Header + hrs.ToString("00") + ":" + mins.ToString("00") + ":" +
-                                secs.ToString("00"), font, fontsize + 2, _whiteBrush, this.Width / 8, height);
+                                secs.ToString("00"), font, fontsize + 2, _whiteBrush, fontsize, height);
                         }
                         else
                         {
                             drawstring(item.Header + item.GetValue.ToString("0.##"), font, fontsize + 2,
-                                _whiteBrush, this.Width / 8, height);
+                                _whiteBrush, fontsize, height);
                         }
 
                         height -= fontsize + 5;
@@ -2780,7 +2797,7 @@ namespace MissionPlanner.Controls
 
                 if (displayvibe)
                 {
-                    vibehitzone = new Rectangle(this.Width - 18 * fontsize, this.Height - ((fontsize + 2) * 3) - fontoffset, 40,
+                    vibehitzone = new Rectangle(this.Width - 18 * fontsize, this.Height - fontsize - fontoffset - 5, 40,
                         fontsize * 2);
 
                     if (vibex > 30 || vibey > 30 || vibez > 30)
@@ -2797,7 +2814,7 @@ namespace MissionPlanner.Controls
 
                 if (displayekf)
                 {
-                    ekfhitzone = new Rectangle(this.Width - 23 * fontsize, this.Height - ((fontsize + 2) * 3) - fontoffset, 40,
+                    ekfhitzone = new Rectangle(this.Width - 23 * fontsize, this.Height - fontsize - fontoffset - 5, 40,
                         fontsize * 2);
 
                     if (ekfstatus > 0.5)
