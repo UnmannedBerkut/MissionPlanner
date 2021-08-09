@@ -56,6 +56,8 @@ namespace MissionPlanner
         private float _ch3percent = -1;
         private float _climbrate;
         private double _current;
+        private double _currentAverage;
+        private double _currentFilterStore;
 
         private double _current2;
 
@@ -1066,6 +1068,17 @@ namespace MissionPlanner
                 _lastcurrent = datetime;
             }
         } //current may to be below zero - recuperation in arduplane
+
+        [GroupText("Battery")]
+        [DisplayText("Avegrage Bat Current (Amps)")]
+        public double currentAverage
+        {
+            get => _currentAverage;
+            set
+            {     
+                _currentAverage = value;
+            }
+        }
 
         [GroupText("Battery")]
         [DisplayText("Bat2 Current (Amps)")]
@@ -3566,6 +3579,13 @@ namespace MissionPlanner
 
                         if (!gotwind)
                             dowindcalc();
+
+                        //Compute Avegrage Current
+                        //IIR Low Pass filter to compute average battery current
+                        const double filterGain = 0.98;     //must be < 1.0, increace for heavier filtering. i.e. 0.99 yields about 6s to steady state assuming 1Hz data input
+                        _currentFilterStore = _currentFilterStore * filterGain + _current;
+                        _currentAverage = _currentFilterStore * (1.0 - filterGain);
+
                     }
 
                     // re-request streams

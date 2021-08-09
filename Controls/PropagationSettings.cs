@@ -28,6 +28,8 @@ namespace MissionPlanner.Controls
         private NumericUpDown NUM_height;
         private Label label114;
         private NumericUpDown Tolerance;
+        private NumericUpDown BatteryCapacity;
+        private Label BattCapLabel;
         private CheckBox chk_ele;
 
         public PropagationSettings()
@@ -43,6 +45,7 @@ namespace MissionPlanner.Controls
             NUM_range.Value = (decimal)Settings.Instance.GetFloat("Propagation_Range", 2.0f);
             NUM_height.Value = (decimal)Settings.Instance.GetFloat("Propagation_Height", 2.0f);
             Tolerance.Value = (decimal)Settings.Instance.GetFloat("Propagation_Tolerance", 0.8f);
+            BatteryCapacity.Value = (decimal)Settings.Instance.GetFloat("Propagation_BatteryCapacity", 10.0f);
 
             chk_ele.Checked = Maps.Propagation.ele_run;
             chk_terrain.Checked = Maps.Propagation.ter_run;
@@ -77,11 +80,14 @@ namespace MissionPlanner.Controls
             this.NUM_height = new System.Windows.Forms.NumericUpDown();
             this.label114 = new System.Windows.Forms.Label();
             this.Tolerance = new System.Windows.Forms.NumericUpDown();
+            this.BatteryCapacity = new System.Windows.Forms.NumericUpDown();
+            this.BattCapLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Clearance)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NUM_range)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NUM_height)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Tolerance)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BatteryCapacity)).BeginInit();
             this.SuspendLayout();
             // 
             // chk_ele
@@ -312,9 +318,33 @@ namespace MissionPlanner.Controls
             this.Tolerance.Name = "Tolerance";
             this.Tolerance.ValueChanged += new System.EventHandler(this.Tolerance_ValueChanged);
             // 
+            // BatteryCapacity
+            // 
+            this.BatteryCapacity.DecimalPlaces = 1;
+            this.BatteryCapacity.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            resources.ApplyResources(this.BatteryCapacity, "BatteryCapacity");
+            this.BatteryCapacity.Maximum = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            0});
+            this.BatteryCapacity.Name = "BatteryCapacity";
+            this.BatteryCapacity.ValueChanged += new System.EventHandler(this.BatteryCapacity_ValueChanged);
+            // 
+            // BattCapLabel
+            // 
+            resources.ApplyResources(this.BattCapLabel, "BattCapLabel");
+            this.BattCapLabel.Name = "BattCapLabel";
+            // 
             // PropagationSettings
             // 
             resources.ApplyResources(this, "$this");
+            this.Controls.Add(this.BattCapLabel);
+            this.Controls.Add(this.BatteryCapacity);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.chk_homedist);
             this.Controls.Add(this.chk_dronedist);
@@ -328,6 +358,7 @@ namespace MissionPlanner.Controls
             ((System.ComponentModel.ISupportInitialize)(this.NUM_range)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NUM_height)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Tolerance)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BatteryCapacity)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -391,6 +422,10 @@ namespace MissionPlanner.Controls
         private void Tolerance_ValueChanged(object sender, EventArgs e)
         {
             Settings.Instance["Propagation_Tolerance"] = Tolerance.Value.ToString();
+        }
+        private void BatteryCapacity_ValueChanged(object sender, EventArgs e)
+        {
+            Settings.Instance["Propagation_BatteryCapacity"] = BatteryCapacity.Value.ToString();
         }
     }
 }
