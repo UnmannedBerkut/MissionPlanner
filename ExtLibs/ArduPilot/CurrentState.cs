@@ -50,6 +50,9 @@ namespace MissionPlanner
         private int _battery_remaining;
         private double _batt_timeleft;
 
+        private double wca_ToBase;
+        private double groundspeed_ToBase;
+
         internal double _battery_voltage;
 
         internal double _battery_voltage2;
@@ -1445,7 +1448,7 @@ namespace MissionPlanner
 
         [GroupText("Position")]
         [DisplayText("Dist to Moving Base (dist)")]
-        public float DistFromMovingBase
+        public float DistToMovingBase
         {
             get
             {
@@ -1461,6 +1464,35 @@ namespace MissionPlanner
                 var dstlat = Math.Abs(MovingBase.Lat - lat) * 111319.5;
                 var dstlon = Math.Abs(MovingBase.Lng - lng) * 111319.5 * scaleLongDown;
                 return (float)Math.Sqrt(dstlat * dstlat + dstlon * dstlon) * multiplierdist;
+            }
+        }
+
+        [GroupText("Position")]
+        [DisplayText("Course to Moving Base (deg)")]
+        public float CourseToMovingBase
+        {
+            get
+            {
+                if (lat == 0 && lng == 0 || MovingBase == null)
+                    return 0;
+
+                // shrinking factor for longitude going to poles direction
+                var rads = Math.Abs(MovingBase.Lat) * 0.0174532925;
+                var scaleLongDown = Math.Cos(rads);
+                var scaleLongUp = 1.0f / Math.Cos(rads);
+
+                var dstlon = MovingBase.Lng - lng; //OffSet_X
+                var dstlat = (MovingBase.Lat - lat) * scaleLongUp; //OffSet Y
+                var bearing = 90 + Math.Atan2(dstlat, -dstlon) * 57.295775;
+                bearing = bearing - 180;  //actually want recoprical bering
+                if (bearing < 0) bearing += 360; //normalization
+
+                var dist = DistToMovingBase / multiplierdist;
+
+                if (dist < 5)
+                    return 0;
+
+                return (float)bearing;
             }
         }
 
@@ -3601,6 +3633,9 @@ namespace MissionPlanner
                             _batt_timeleft = (parent.parent.MAV.param["BATT_CAPACITY"].Value / 1000.0) * ((double)_battery_remaining / 100.0) / _currentAverage * 60;
                         else
                             _batt_timeleft = 999.9;
+
+                        //Compute Wind correction angle from current location to moving base
+
 
                     }
 
