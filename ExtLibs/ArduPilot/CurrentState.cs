@@ -50,8 +50,8 @@ namespace MissionPlanner
         private int _battery_remaining;
         private double _batt_timeleft;
 
-        private double wca_ToBase;
-        private double groundspeed_ToBase;
+        private double _wca_ToBase;
+        private double _gs_ToBasePredicted;
 
         internal double _battery_voltage;
 
@@ -1495,6 +1495,27 @@ namespace MissionPlanner
                 return (float)bearing;
             }
         }
+
+        [GroupText("Position")]
+        [DisplayText("Wind Correction Angle to Base (deg)")]
+        public float WCAtoBase
+        {
+            get
+            {
+                return (float)_wca_ToBase;
+            }
+        }
+
+        [GroupText("Position")]
+        [DisplayText("Predicted Groundspeed when Flying Towards Base (m/s)")]
+        public float GStoBasePredicted
+        {
+            get
+            {
+                return (float)_gs_ToBasePredicted;
+            }
+        }
+
 
         [DisplayText("Elevation to Mav (deg)")]
         public float ELToMAV
@@ -3635,8 +3656,10 @@ namespace MissionPlanner
                             _batt_timeleft = 999.9;
 
                         //Compute Wind correction angle from current location to moving base
+                        _wca_ToBase = Math.Asin(Math.Sin((wind_dir - CourseToMovingBase) * 0.01745329) * (wind_vel / airspeed)) * 57.295775;
 
-
+                        //Compute predicted groundspeed when flying towards moving base
+                        _gs_ToBasePredicted = Math.Sqrt(airspeed * airspeed + wind_vel * wind_vel - 2.0 * airspeed * wind_vel * Math.Cos((wind_dir - CourseToMovingBase - _wca_ToBase) * 0.01745329));
                     }
 
                     // re-request streams
