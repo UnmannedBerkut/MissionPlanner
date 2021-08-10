@@ -48,6 +48,7 @@ namespace MissionPlanner
         private float _aspd_error;
 
         private int _battery_remaining;
+        private double _batt_timeleft;
 
         internal double _battery_voltage;
 
@@ -1078,6 +1079,14 @@ namespace MissionPlanner
             {     
                 _currentAverage = value;
             }
+        }
+
+        [GroupText("Battery")]
+        [DisplayText("Bat time remaining, computed by GCS (minutes)")]
+        public double batt_timeleft
+        {
+            get => Math.Round(_batt_timeleft,0);
+            set { }
         }
 
         [GroupText("Battery")]
@@ -3585,6 +3594,13 @@ namespace MissionPlanner
                         const double filterGain = 0.98;     //must be < 1.0, increace for heavier filtering. i.e. 0.99 yields about 6s to steady state assuming 1Hz data input
                         _currentFilterStore = _currentFilterStore * filterGain + _current;
                         _currentAverage = _currentFilterStore * (1.0 - filterGain);
+
+                        //Compute Battery time remaining
+                        if (parent != null && parent.parent.MAV.param.ContainsKey("BATT_CAPACITY"))
+                            //(minutes) = (mAh/1000) * (percent/100) / (A)
+                            _batt_timeleft = (parent.parent.MAV.param["BATT_CAPACITY"].Value / 1000.0) * ((double)_battery_remaining / 100.0) / _currentAverage * 60;
+                        else
+                            _batt_timeleft = 999.9;
 
                     }
 
