@@ -104,6 +104,7 @@ namespace MissionPlanner.GCSViews
         GMapMarker marker;
 
         int messagecount;
+        double filterStore = 0;
 
         //whether or not the output console has already started
         bool outputwindowstarted;
@@ -3650,8 +3651,17 @@ namespace MissionPlanner.GCSViews
                             }
                         }
 
-                        prop.Update(MainV2.comPort.MAV.cs.HomeLocation, MainV2.comPort.MAV.cs.Location,
-                            MainV2.comPort.MAV.cs.battery_kmleft);
+                        //filter airspeed reading
+                        const double filterGain = 0.85;     //must be < 1.0, increace for heavier filtering. i.e. 0.99 yields about 6s to steady state assuming 1Hz data input
+                        filterStore = filterStore * filterGain + (float)MainV2.comPort.MAV.cs.airspeed;
+                        var filteredAirspeed = filterStore * (1.0 - filterGain);
+
+                        //offset for wind
+                        var mavLLA = new PointLatLngAlt(MainV2.comPort.MAV.cs.Location.Lat, MainV2.comPort.MAV.cs.Location.Lng, MainV2.comPort.MAV.cs.Location.Alt);
+                        mavLLA = mavLLA.newpos(MainV2.comPort.MAV.cs.wind_dir - 180.0, MainV2.comPort.MAV.cs.wind_vel * MainV2.comPort.MAV.cs.batt_timeleft * 60.0);
+
+                        prop.Update(MainV2.comPort.MAV.cs.HomeLocation, mavLLA,
+                            filteredAirspeed * MainV2.comPort.MAV.cs.batt_timeleft * 60.0 / 1000.0);
 
                         prop.alt = MainV2.comPort.MAV.cs.alt;
                         prop.altasl = MainV2.comPort.MAV.cs.altasl;
