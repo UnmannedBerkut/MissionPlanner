@@ -52,6 +52,8 @@ namespace MissionPlanner
 
         private double _wca_ToBase;
         private double _gs_ToBasePredicted;
+        private double _time_ToBasePredicted;
+        private double _time_OnStation;
 
         internal double _battery_voltage;
 
@@ -1516,6 +1518,25 @@ namespace MissionPlanner
             }
         }
 
+        [GroupText("Position")]
+        [DisplayText("Predicted Time required to fly to Base (min)")]
+        public float TimeToBasePredicted
+        {
+            get
+            {
+                return (float)_time_ToBasePredicted;
+            }
+        }
+
+        [GroupText("Position")]
+        [DisplayText("Predicted Time at current location, minus time required to fly to base (min)")]
+        public float TimeOnStation
+        {
+            get
+            {
+                return (float)_time_OnStation;
+            }
+        }
 
         [DisplayText("Elevation to Mav (deg)")]
         public float ELToMAV
@@ -3648,18 +3669,24 @@ namespace MissionPlanner
                         _currentFilterStore = _currentFilterStore * filterGain + _current;
                         _currentAverage = _currentFilterStore * (1.0 - filterGain);
 
-                        //Compute Battery time remaining
+                        //Compute Battery time remaining (min)
                         if (parent != null && parent.parent.MAV.param.ContainsKey("BATT_CAPACITY"))
                             //(minutes) = (mAh/1000) * (percent/100) / (A)
                             _batt_timeleft = (parent.parent.MAV.param["BATT_CAPACITY"].Value / 1000.0) * ((double)_battery_remaining / 100.0) / _currentAverage * 60;
                         else
                             _batt_timeleft = 999.9;
 
-                        //Compute Wind correction angle from current location to moving base
+                        //Compute Wind correction angle from current location to moving base (deg)
                         _wca_ToBase = Math.Asin(Math.Sin((wind_dir - CourseToMovingBase) * 0.01745329) * (wind_vel / airspeed)) * 57.295775;
 
-                        //Compute predicted groundspeed when flying towards moving base
+                        //Compute predicted groundspeed when flying towards moving base (m/s)
                         _gs_ToBasePredicted = Math.Sqrt(airspeed * airspeed + wind_vel * wind_vel - 2.0 * airspeed * wind_vel * Math.Cos((wind_dir - CourseToMovingBase - _wca_ToBase) * 0.01745329));
+
+                        //Compute predicted time to return to base (min)
+                        _time_ToBasePredicted = DistToMovingBase / _gs_ToBasePredicted / 60.0;
+
+                        //Compute remaining time on station at this location (min)
+                        _time_OnStation = batt_timeleft - _time_ToBasePredicted;
                     }
 
                     // re-request streams
